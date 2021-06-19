@@ -1,0 +1,847 @@
+<?xml version="1.0" encoding="utf-8"?><feed xmlns="http://www.w3.org/2005/Atom" ><generator uri="https://jekyllrb.com/" version="3.8.7">Jekyll</generator><link href="blog.sravjti.in/feed.xml" rel="self" type="application/atom+xml" /><link href="blog.sravjti.in/" rel="alternate" type="text/html" /><updated>2021-06-19T14:47:37+00:00</updated><id>blog.sravjti.in/feed.xml</id><title type="html">sra-vjti</title><subtitle>The Society of Robotics and Automation is a society for VJTI students. As the name suggests, we deal with Robotics, Machine Vision and Automation
+</subtitle><author><name>sra-vjti</name></author><entry><title type="html">Guide to using singularity to run ROS Melodic</title><link href="blog.sravjti.in/2020/12/11/singularity-ros-melodic.html" rel="alternate" type="text/html" title="Guide to using singularity to run ROS Melodic" /><published>2020-12-11T00:00:00+00:00</published><updated>2020-12-11T00:00:00+00:00</updated><id>blog.sravjti.in/2020/12/11/singularity-ros-melodic</id><content type="html" xml:base="blog.sravjti.in/2020/12/11/singularity-ros-melodic.html">&lt;p&gt;– &lt;a href=&quot;https://github.com/SAtacker&quot;&gt;Shreyas Atre&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;a-noobs-guide-by-a-noob-to-install-ros-on-singularity&quot;&gt;A Noobs guide by a Noob to install ros on singularity&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;In here only ros-melodic is shown , but it could be done the same way for noetic or ros2 by editing &lt;code class=&quot;highlighter-rouge&quot;&gt;osrf/ros:&amp;lt;tag_name&amp;gt;&lt;/code&gt; &lt;a href=&quot;https://hub.docker.com/r/osrf/ros/tags&quot;&gt;tag names&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;As of Dec 10th,2020 Singularity is not supported on Windows&lt;/li&gt;
+  &lt;li&gt;These guidlines are tested for Ubuntu 18.04 , 20.10 (Groovy G)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;installing-go&quot;&gt;Installing GO&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;You coud just install go from the official guide but since you are here, you need it from here :smirk:&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Install the dependencies using apt&lt;/p&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt-get update &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;apt-get &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-y&lt;/span&gt; build-essential libseccomp-dev pkg-config squashfs-tools cryptsetup
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;ul&gt;
+  &lt;li&gt;Visit &lt;a href=&quot;https://golang.org/dl/&quot;&gt;Go downloads&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Copy the latest stable release link for linux , until today 15.6 is the latest one
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;wget https://golang.org/dl/go1.15.6.linux-amd64.tar.gz
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;The /usr/local hierarchy is for use by the system administrator when installing software locally.&lt;/li&gt;
+  &lt;li&gt;Locally installed software must be placed within /usr/local rather than /usr unless it is being installed to replace or upgrade software in /usr. &lt;a href=&quot;https://unix.stackexchange.com/questions/4186/what-is-usr-local-bin&quot;&gt;Ref&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;Thus extract it in /usr/local using &lt;a href=&quot;https://www.cyberciti.biz/faq/linux-unix-extracting-specific-files/&quot;&gt;tar&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;sudo tar&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-C&lt;/span&gt; /usr/local &lt;span class=&quot;nt&quot;&gt;-xzf&lt;/span&gt; go1.15.6.linux-amd64.tar.gz
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Now we need to set the environment variables for go&lt;/li&gt;
+  &lt;li&gt;I set them directly in .bashrc but you can do it in &lt;a href=&quot;https://unix.stackexchange.com/questions/3052/is-there-a-bashrc-equivalent-file-read-by-all-shells&quot;&gt;alternative&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'export PATH=$PATH:/usr/local/go/bin'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&lt;/span&gt; ~/.bashrc
+&lt;span class=&quot;nb&quot;&gt;mkdir&lt;/span&gt; ~/go_projects
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'export GOPATH=&quot;$HOME/go_projects&quot;'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&lt;/span&gt; ~/.bashrc
+&lt;span class=&quot;nb&quot;&gt;echo&lt;/span&gt; &lt;span class=&quot;s1&quot;&gt;'export GOBIN=&quot;$GOPATH/bin&quot;'&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;gt;&amp;gt;&lt;/span&gt; ~/.bashrc
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;ul&gt;
+  &lt;li&gt;Now resource
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt; ./bashrc
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Now check the installation
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;go version
+go &lt;span class=&quot;nb&quot;&gt;env&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Output would be &lt;code class=&quot;highlighter-rouge&quot;&gt;go version go1.15.6 linux/amd64&lt;/code&gt; and
+    &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;GOBIN=&quot;/home/satacker/go_projects/bin&quot;
+GOCACHE=&quot;/home/satacker/.cache/go-build&quot;
+GOENV=&quot;/home/satacker/.config/go/env&quot;
+...{and so on}
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;installing-singularity&quot;&gt;Installing Singularity&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;It is optional to install golangci-lint as per the &lt;a href=&quot;https://github.com/hpcng/singularity/blob/master/INSTALL.md&quot;&gt;singularity installation&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;curl &lt;span class=&quot;nt&quot;&gt;-sfL&lt;/span&gt; https://install.goreleaser.com/github.com/golangci/golangci-lint.sh | sh &lt;span class=&quot;nt&quot;&gt;-s&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;--&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-b&lt;/span&gt; &lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;go &lt;span class=&quot;nb&quot;&gt;env &lt;/span&gt;GOPATH&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;/bin v1.21.0
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Now installing Singularity&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;mkdir&lt;/span&gt; &lt;span class=&quot;nt&quot;&gt;-p&lt;/span&gt; &lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;go &lt;span class=&quot;nb&quot;&gt;env &lt;/span&gt;GOPATH&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;/src/github.com/sylabs
+&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; &lt;span class=&quot;si&quot;&gt;$(&lt;/span&gt;go &lt;span class=&quot;nb&quot;&gt;env &lt;/span&gt;GOPATH&lt;span class=&quot;si&quot;&gt;)&lt;/span&gt;/src/github.com/sylabs
+git clone https://github.com/sylabs/singularity.git
+&lt;span class=&quot;nb&quot;&gt;cd &lt;/span&gt;singularity
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;As of today v3.6.4 is a stable one&lt;/li&gt;
+  &lt;li&gt;Now inside &lt;code class=&quot;highlighter-rouge&quot;&gt;singularity&lt;/code&gt;
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;git checkout v3.6.4
+./mconfig
+&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ./builddir
+make
+&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;make &lt;span class=&quot;nb&quot;&gt;install&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;To verify the installation
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;singularity version
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;installing-ros-melodic-from-osrf-image&quot;&gt;&lt;a href=&quot;https://robotism.me/blog/creating-ROS-melodic-container-with-singularity-3.5/&quot;&gt;Installing ros melodic from osrf image&lt;/a&gt;&lt;/h3&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; ~ &lt;span class=&quot;o&quot;&gt;&amp;amp;&amp;amp;&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;singularity build &lt;span class=&quot;nt&quot;&gt;--sandbox&lt;/span&gt; melodic/ docker://osrf/ros:melodic-desktop-full
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;ul&gt;
+  &lt;li&gt;Now the container image is ready&lt;/li&gt;
+  &lt;li&gt;To execute scripts in the container
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;singularity shell &lt;span class=&quot;nt&quot;&gt;--writable&lt;/span&gt; melodic/
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;This will open a Shell in Singurity image with the current directory mounted by default&lt;/li&gt;
+  &lt;li&gt;Try &lt;code class=&quot;highlighter-rouge&quot;&gt;apt update &amp;amp;&amp;amp; apt upgrade&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h3 id=&quot;running-roscore&quot;&gt;Running roscore&lt;/h3&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;satacker@ubuntu:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;singularity shell &lt;span class=&quot;nt&quot;&gt;-w&lt;/span&gt; melodic/
+&lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;]&lt;/span&gt; password &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;satacker: 
+Singularity&amp;gt; &lt;span class=&quot;nb&quot;&gt;source&lt;/span&gt; /opt/ros/melodic/setup.bash 
+Singularity&amp;gt; roscore
+... logging to /root/.ros/log/b03e5adc-3b89-11eb-b60b-dcf505b1c27d/roslaunch-ubuntu-13488.log
+Checking log directory &lt;span class=&quot;k&quot;&gt;for &lt;/span&gt;disk usage. This may take a &lt;span class=&quot;k&quot;&gt;while&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;.&lt;/span&gt;
+Press Ctrl-C to interrupt
+Done checking log file disk usage. Usage is &amp;lt;1GB.
+
+started roslaunch server http://ubuntu:40581/
+ros_comm version 1.14.10
+
+
+SUMMARY
+&lt;span class=&quot;o&quot;&gt;========&lt;/span&gt;
+
+PARAMETERS
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; /rosdistro: melodic
+ &lt;span class=&quot;k&quot;&gt;*&lt;/span&gt; /rosversion: 1.14.10
+
+NODES
+
+auto-starting new master
+process[master]: started with pid &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;13498]
+&lt;span class=&quot;nv&quot;&gt;ROS_MASTER_URI&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;http://ubuntu:11311/
+
+setting /run_id to b03e5adc-3b89-11eb-b60b-dcf505b1c27d
+process[rosout-1]: started with pid &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;13509]
+started core service &lt;span class=&quot;o&quot;&gt;[&lt;/span&gt;/rosout]
+
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;running-gazebo&quot;&gt;Running Gazebo&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;If you get any errors please see &lt;a href=&quot;#known-issues&quot;&gt;Known Issues&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/posts/using-singularity-ros-melodic/gazebo.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;host-to-container&quot;&gt;Host to Container&lt;/h3&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;When Singularity ‘swaps’ the host operating system for the one inside your container, the host file systems becomes inaccessible. But you may want to read and write files on the host system from within the container. To enable this functionality, Singularity will bind directories back in via two primary methods: system-defined bind points and conditional user-defined bind points.&lt;/li&gt;
+  &lt;li&gt;Before&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;satacker@ubuntu:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;singularity shell &lt;span class=&quot;nt&quot;&gt;-w&lt;/span&gt; melodic/
+Singularity&amp;gt; &lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /home/
+Singularity&amp;gt; &lt;span class=&quot;nb&quot;&gt;ls
+&lt;/span&gt;Singularity&amp;gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;After&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;satacker@ubuntu:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;sudo &lt;/span&gt;singularity shell &lt;span class=&quot;nt&quot;&gt;-B&lt;/span&gt; /home/satacker/:/home/ &lt;span class=&quot;nt&quot;&gt;-w&lt;/span&gt; melodic/
+Singularity&amp;gt; &lt;span class=&quot;nb&quot;&gt;cd&lt;/span&gt; /home/
+Singularity&amp;gt; &lt;span class=&quot;nb&quot;&gt;ls
+&lt;/span&gt;Desktop    Downloads  Pictures	Templates  anaconda3	melodic  wget-log
+Documents  Music      Public	Videos	   go_projects	snap
+Singularity&amp;gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;In the above command &lt;code class=&quot;highlighter-rouge&quot;&gt;-B&lt;/code&gt; is the option selected and &lt;code class=&quot;highlighter-rouge&quot;&gt;/home/satacker/&lt;/code&gt; on the host is now binded with &lt;code class=&quot;highlighter-rouge&quot;&gt;/home/&lt;/code&gt; on the container&lt;/li&gt;
+  &lt;li&gt;Beware  Mount options (opts) may be specified as ro (read-only) or rw (read/write, which is the default)&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;Singularity&amp;gt; &lt;span class=&quot;nb&quot;&gt;touch &lt;/span&gt;test.test
+Singularity&amp;gt; &lt;span class=&quot;nb&quot;&gt;ls
+&lt;/span&gt;Desktop    Downloads  Pictures	Templates  anaconda3	melodic  test.test
+Documents  Music      Public	Videos	   go_projects	snap	 wget-log
+Singularity&amp;gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;satacker@ubuntu:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;ls
+&lt;/span&gt;anaconda3  Documents  go_projects  Music     Public  Templates  Videos
+Desktop    Downloads  melodic      Pictures  snap    test.test  wget-log
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;multiple-instances-of-same-image&quot;&gt;Multiple Instances of same image&lt;/h3&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;satacker@ubuntu:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;singularity instance start melodic/ instance_1
+INFO:    instance started successfully
+satacker@ubuntu:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;singularity instance start melodic/ instance_2
+INFO:    instance started successfully
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;stopping-instances&quot;&gt;Stopping Instances&lt;/h3&gt;
+
+&lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;satacker@ubuntu:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;singularity instance list
+INSTANCE NAME    PID     IP    IMAGE
+instance_1       6705          /home/satacker/melodic
+instance_2       6994          /home/satacker/melodic
+satacker@ubuntu:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;singularity instance stop instance_1
+INFO:    Stopping instance_1 instance of /home/satacker/melodic &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;PID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;6705&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+satacker@ubuntu:~&lt;span class=&quot;nv&quot;&gt;$ &lt;/span&gt;singularity instance stop instance_2
+INFO:    Stopping instance_2 instance of /home/satacker/melodic &lt;span class=&quot;o&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nv&quot;&gt;PID&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;6994&lt;span class=&quot;o&quot;&gt;)&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;h3 id=&quot;running-turtlesim&quot;&gt;Running Turtlesim&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/posts/using-singularity-ros-melodic/turtlesime_key.png&quot; alt=&quot;&quot; /&gt;
+&lt;img src=&quot;/assets/posts/using-singularity-ros-melodic/turtlesim_key_2.png&quot; alt=&quot;&quot; /&gt;
+&lt;img src=&quot;/assets/posts/using-singularity-ros-melodic/turtlesim_key_3.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h3 id=&quot;using-terminator&quot;&gt;Using Terminator&lt;/h3&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/posts/using-singularity-ros-melodic/terminator_multiple.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;known-issues&quot;&gt;Known issues&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;While running the gui apps the windowing system may give &lt;code class=&quot;highlighter-rouge&quot;&gt;No protocol specified&lt;/code&gt; and &lt;code class=&quot;highlighter-rouge&quot;&gt;xcb_connection_has_error() returned true&lt;/code&gt;
+The possible workaround (also the easiest) for this is to allow the anyone on the localhost to connect to your dislpay using &lt;code class=&quot;highlighter-rouge&quot;&gt;xhost +local:&lt;/code&gt; - &lt;a href=&quot;https://unix.stackexchange.com/questions/85782/error-no-protocol-specified-when-running-from-remote-machine-via-ssh&quot;&gt;ref&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;libGL error: No matching fbConfigs or visuals found libGL error: failed to load driver: swrast&lt;/code&gt; The possible workaround is to install nvidia or other graphic drivers &lt;a href=&quot;https://askubuntu.com/questions/541343/problems-with-libgl-fbconfigs-swrast-through-each-update&quot;&gt;ref&lt;/a&gt; and then a reboot&lt;/li&gt;
+  &lt;li&gt;While running terminator &lt;code class=&quot;highlighter-rouge&quot;&gt;dbus.exceptions.DBusException: org.freedesktop.DBus.Error.Spawn.ExecFailed: /usr/bin/dbus-launch terminated abnormally without any error message&lt;/code&gt; D-Bus is a software bus, inter-process communication, and remote procedure call mechanism that allows communication between multiple processes running concurrently on the same machine. simply use &lt;code class=&quot;highlighter-rouge&quot;&gt;terminator -u&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>sra-vjti</name></author><category term="ros_singularity" /><summary type="html">– Shreyas Atre</summary></entry><entry><title type="html">GDB For Noobs</title><link href="blog.sravjti.in/2020/10/11/gdb-for-noobs.html" rel="alternate" type="text/html" title="GDB For Noobs" /><published>2020-10-11T00:00:00+00:00</published><updated>2020-10-11T00:00:00+00:00</updated><id>blog.sravjti.in/2020/10/11/gdb-for-noobs</id><content type="html" xml:base="blog.sravjti.in/2020/10/11/gdb-for-noobs.html">&lt;p&gt;– &lt;a href=&quot;https://github.com/DhruvaG2000&quot;&gt;Dhruva Gole&lt;/a&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;why-use-a-debugger&quot;&gt;Why use a debugger?&lt;/h2&gt;
+
+&lt;p&gt;Most of us tend to have bugs in our code. We could use printing commands to test our code, or we could use a debugger. Many times our code might seem to work correctly, because we didn’t test it under enough scenarios. Other times we know there’s a bug, but by just reading the code we don’t notice it is there. Thus, we should develop a habit of launching a debugger when we get into trouble.&lt;/p&gt;
+
+&lt;h2 id=&quot;walkthrough&quot;&gt;Walkthrough&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;
+    &lt;p&gt;for compiling your code to make it suitable for debugging using gdb:&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  g++ &lt;span class=&quot;nt&quot;&gt;-g&lt;/span&gt; &lt;span class=&quot;s2&quot;&gt;&quot;buggy_factorial.cpp&quot;&lt;/span&gt; 
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;launching the gdb shell:&lt;/p&gt;
+
+    &lt;div class=&quot;language-bash highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  gdb a.out
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;    &lt;/div&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;basic commands we will be needing:&lt;/p&gt;
+
+    &lt;ul&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(gdb) run&lt;/code&gt; : runs the program.&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(gdb) break file1.c:6&lt;/code&gt; : Breakpoints can be used to stop the program run in the middle, at a designated point (we will see how its useful in the following example).&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(gdb) break myfunc&lt;/code&gt;: creates breakpoint at &lt;code class=&quot;highlighter-rouge&quot;&gt;myfunc&lt;/code&gt; &lt;strong&gt;remember to use myfunc without the ()&lt;/strong&gt;&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(gdb) step&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;(gdb) s&lt;/code&gt; : execute just the next line of code.&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(gdb) print (gdb)&lt;/code&gt; or &lt;code class=&quot;highlighter-rouge&quot;&gt;(gdb) p (gdb)&lt;/code&gt; :  prints the value of the variable.&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;(gdb) watch myvar&lt;/code&gt;: whenever myvar’s value is modified, the program will interrupt and print out the old and new values. 
+  trivial one’s below…&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;finish&lt;/code&gt; : runs until the current function is finished.&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;delete&lt;/code&gt; : deletes a specified breakpoint.&lt;/li&gt;
+      &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;info breakpoints&lt;/code&gt; : shows information about all declared breakpoints.&lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;explanation with example:&lt;/p&gt;
+    &lt;ul&gt;
+      &lt;li&gt;
+        &lt;p&gt;First, let’s just run the code.. 
+  command:&lt;/p&gt;
+
+        &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  run
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;        &lt;/div&gt;
+        &lt;p&gt;output:&lt;/p&gt;
+        &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  Starting program: /home/dhruva/Documents/studies/maths/gdb-for-noobs/a.out 
+  enter any number: 
+  4
+  The factorial of 4 is 1[Inferior 1 (process 14193) exited normally]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;        &lt;/div&gt;
+
+        &lt;p&gt;oops! Clearly the answer is wrong!!
+  Now, as a very inexperienced programmer, one would try to print at every iteration to see where the program might have gone wrong resulting in a very ugly looking code and also adding the unnecessary headache of having to track the line number of each print statement one had used for debugging their codes. 
+  Now, let’s see how gdb simplifies things for us…&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;creating breakpoints: 
+  Since my factorial function is most probably messing up, I will add the breakpoint to it. 
+  command:&lt;/p&gt;
+
+        &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  break factorial
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;        &lt;/div&gt;
+
+        &lt;p&gt;output:&lt;/p&gt;
+
+        &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  Breakpoint 1 at 0x555555554993: file buggy_factorial.cpp, line 5.
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;        &lt;/div&gt;
+
+        &lt;p&gt;now lets run it again… using &lt;code class=&quot;highlighter-rouge&quot;&gt;run&lt;/code&gt; 
+  output:&lt;/p&gt;
+
+        &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  Starting program: /home/dhruva/Documents/studies/maths/gdb-for-noobs/a.out 
+  enter any number: 
+  4
+
+  Breakpoint 1, factorial (n=4) at buggy_factorial.cpp:5
+  5	  double res=1;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;        &lt;/div&gt;
+
+        &lt;p&gt;as we can see, the program stopped just as the function was called. Now, instead of needing to manually add &lt;code class=&quot;highlighter-rouge&quot;&gt;print()&lt;/code&gt; statements I will see why my code is buggy by watching the variables in my console itself!&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;watching the variable
+  Since it is likely that some variable is not working properly, let’s start by watching the &lt;code class=&quot;highlighter-rouge&quot;&gt;res&lt;/code&gt; variable. 
+  command: 
+  &lt;code class=&quot;highlighter-rouge&quot;&gt;watch res&lt;/code&gt;
+  now the gdb console works in such a way that hitting enter will automatically take you to the next step where you expect to see some change in your variable as the while loop modifies it in each iteration…
+  hmm… something strange, the res variable isn’t updating! 
+  Well, so now that I observe that &lt;code class=&quot;highlighter-rouge&quot;&gt;res&lt;/code&gt; isn’t updating, the only reason I think is it must not be entering the while loop for some reason!&lt;/p&gt;
+
+        &lt;p&gt;OK! So now I go back ad make changes in my while loop condition to
+  &lt;code class=&quot;highlighter-rouge&quot;&gt;while(n&amp;gt;=1)&lt;/code&gt;&lt;/p&gt;
+      &lt;/li&gt;
+      &lt;li&gt;
+        &lt;p&gt;Let’s see if the issue is fixed!
+  Press &lt;code class=&quot;highlighter-rouge&quot;&gt;q&lt;/code&gt; and then &lt;code class=&quot;highlighter-rouge&quot;&gt;y&lt;/code&gt; to exit the gdb, and again compile your new program:&lt;/p&gt;
+        &lt;ul&gt;
+          &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;g++ -g factorial.cpp -o fact&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;gdb fact&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;&lt;code class=&quot;highlighter-rouge&quot;&gt;run&lt;/code&gt;&lt;/li&gt;
+          &lt;li&gt;
+            &lt;p&gt;output:&lt;/p&gt;
+
+            &lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;  Starting program: /home/dhruva/Documents/studies/maths/gdb-for-noobs/fact 
+  enter any number: 
+  4
+  The factorial of 4 is 24[Inferior 1 (process 15039) exited normally]
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;            &lt;/div&gt;
+            &lt;p&gt;Thus using GDB we learned to debug a very basic code in c++. You can also try the other commands listed on top as per your own convenience and requirements.&lt;/p&gt;
+          &lt;/li&gt;
+        &lt;/ul&gt;
+      &lt;/li&gt;
+    &lt;/ul&gt;
+  &lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;sources&quot;&gt;sources:&lt;/h2&gt;
+&lt;ul&gt;
+  &lt;li&gt;&lt;a href=&quot;https://www.cs.umd.edu/~srhuang/teaching/cmsc212/gdb-tutorial-handout.pdf&quot;&gt;gdb-tutorial-handout&lt;/a&gt;&lt;/li&gt;
+  &lt;li&gt;&lt;a href=&quot;http://www.math.bas.bg/~nkirov/2005/netb151/debugging-with-gdb.html&quot;&gt;debugging-with-gdb&lt;/a&gt;&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>sra-vjti</name></author><category term="gdb" /><summary type="html">– Dhruva Gole</summary></entry><entry><title type="html">Using Jekyll to generate static sites and hosting them on Github Pages [Part 2]</title><link href="blog.sravjti.in/2020/09/14/using-jekyll-with-github-pages-2.html" rel="alternate" type="text/html" title="Using Jekyll to generate static sites and hosting them on Github Pages [Part 2]" /><published>2020-09-14T00:00:00+00:00</published><updated>2020-09-14T00:00:00+00:00</updated><id>blog.sravjti.in/2020/09/14/using-jekyll-with-github-pages-2</id><content type="html" xml:base="blog.sravjti.in/2020/09/14/using-jekyll-with-github-pages-2.html">&lt;p&gt;– &lt;a href=&quot;https://github.com/VedantParanjape&quot;&gt;Vedant Paranjape&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;advanced-usage&quot;&gt;Advanced usage&lt;/h1&gt;
+
+&lt;p&gt;If you go to your repository you will see a new file, named &lt;code class=&quot;highlighter-rouge&quot;&gt;_config.yml&lt;/code&gt;, we didn’t add this, then how was it added ??? Hahah, I hacked your github account, xD.&lt;/p&gt;
+
+&lt;p&gt;Chill, just joking, obviously I didn’t. Remember earlier, when you set the theme from repository settings, because of that &lt;code class=&quot;highlighter-rouge&quot;&gt;_config.yml&lt;/code&gt; was added to the repository.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-is-_configyml&quot;&gt;What is _config.yml&lt;/h2&gt;
+
+&lt;p&gt;It is a configuration file used by jekyll to generate your webpage, it contains various settings like site source, site name, author, etc.&lt;/p&gt;
+
+&lt;p&gt;You can read more about it here: &lt;a href=&quot;https://jekyllrb.com/docs/configuration/&quot;&gt;https://jekyllrb.com/docs/configuration/&lt;/a&gt;. I will only cover the basic case.&lt;/p&gt;
+
+&lt;h2 id=&quot;creating-a-_configyml&quot;&gt;Creating a _config.yml&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Add the following lines to the already existing &lt;code class=&quot;highlighter-rouge&quot;&gt;_config.yml&lt;/code&gt;&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-yml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;na&quot;&gt;title&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;Jekyll tutorial&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;url&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;index.md&lt;/span&gt;
+&lt;span class=&quot;na&quot;&gt;description&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;This is an amazing site I created while learning jekyll.&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Now save the file, and check your website after some time, you’ll see the website title, and description change as follows.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/posts/using-jekyll-with-github-pages-part-2/title_description.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h2 id=&quot;viewing-the-site-locally&quot;&gt;Viewing the site locally&lt;/h2&gt;
+
+&lt;p&gt;Make sure to install jekyll before hand, from: &lt;a href=&quot;https://jekyllrb.com/docs/installation/&quot;&gt;https://jekyllrb.com/docs/installation/&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;To run the site locally, we need a file called, Gemfile, create a new file called &lt;code class=&quot;highlighter-rouge&quot;&gt;Gemfile&lt;/code&gt;, and copy the following to it.&lt;/p&gt;
+
+&lt;div class=&quot;language-yml highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;s&quot;&gt;source 'https://rubygems.org'&lt;/span&gt;
+&lt;span class=&quot;s&quot;&gt;gem 'github-pages', group&lt;/span&gt;&lt;span class=&quot;pi&quot;&gt;:&lt;/span&gt; &lt;span class=&quot;s&quot;&gt;:jekyll_plugins&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Run the following command to install the gems &lt;code class=&quot;highlighter-rouge&quot;&gt;bundle install&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Run the following command to start the server &lt;code class=&quot;highlighter-rouge&quot;&gt;bundle exec jekyll serve&lt;/code&gt;&lt;/li&gt;
+  &lt;li&gt;Open &lt;code class=&quot;highlighter-rouge&quot;&gt;127.0.0.1:4000&lt;/code&gt; to view the site locally.&lt;/li&gt;
+  &lt;li&gt;You can see, a new folder is created, &lt;code class=&quot;highlighter-rouge&quot;&gt;_site&lt;/code&gt;, if you look into it, it has all the html files, these have been generated by jekyll and are being shown.&lt;/li&gt;
+&lt;/ul&gt;</content><author><name>sra-vjti</name></author><category term="jekyll" /><summary type="html">– Vedant Paranjape</summary></entry><entry><title type="html">Using Jekyll to generate static sites and hosting them on Github Pages [Part 1]</title><link href="blog.sravjti.in/2020/09/14/using-jekyll-with-github-pages-1.html" rel="alternate" type="text/html" title="Using Jekyll to generate static sites and hosting them on Github Pages [Part 1]" /><published>2020-09-14T00:00:00+00:00</published><updated>2020-09-14T00:00:00+00:00</updated><id>blog.sravjti.in/2020/09/14/using-jekyll-with-github-pages-1</id><content type="html" xml:base="blog.sravjti.in/2020/09/14/using-jekyll-with-github-pages-1.html">&lt;p&gt;– &lt;a href=&quot;https://github.com/VedantParanjape&quot;&gt;Vedant Paranjape&lt;/a&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;introduction-to-jekyll&quot;&gt;Introduction to Jekyll&lt;/h1&gt;
+
+&lt;h2 id=&quot;what-is-jekyll&quot;&gt;What is Jekyll&lt;/h2&gt;
+
+&lt;p&gt;Jekyll is a simple, blog-aware, static site generator perfect for personal, project, or organization sites. Think of it like a file-based CMS, without all the complexity. Jekyll takes your content, renders Markdown and Liquid templates, and spits out a complete, static website ready to be served by Apache, Nginx or another web server. Jekyll is the engine behind GitHub Pages, which you can use to host sites right from your GitHub repositories.&lt;/p&gt;
+
+&lt;p&gt;Jekyll does what you tell it to do — no more, no less. It doesn’t try to outsmart users by making bold assumptions, nor does it burden them with needless complexity and configuration. Put simply, Jekyll gets out of your way and allows you to concentrate on what truly matters: your content.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-are-dynamic-websites&quot;&gt;What are dynamic websites&lt;/h2&gt;
+
+&lt;p&gt;Dynamic websites pull information from a database to fill in the content on a webpage. When you search for some movie on Google.com, the search results page you are shown didn’t already exist as a full HTML page; instead, Google.com has a template for search results page that includes things all results pages share, but it queries the database to insert the results of that search you initiated into that template and thus shows the result on your screen.&lt;/p&gt;
+
+&lt;h2 id=&quot;what-are-static-websites&quot;&gt;What are static websites&lt;/h2&gt;
+
+&lt;p&gt;Static websites do not use a database to store information. All the info that is to be displayed on the webpage is already contained inside the html file, be it javascript or css. The HTML pages that make up a static site can be completely written by hand, or you can offload some of this work using something like Jekyll.&lt;/p&gt;
+
+&lt;h2 id=&quot;github-pages&quot;&gt;Github Pages&lt;/h2&gt;
+
+&lt;p&gt;GitHub Pages is a place to store the files that run a website and host that website for people to visit. It can only be used to host static websites. Using it we can publish static websites through github, the domain name for the page is as follows &lt;code class=&quot;highlighter-rouge&quot;&gt;&amp;lt;github_username&amp;gt;.github.io&lt;/code&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;getting-started&quot;&gt;Getting started&lt;/h1&gt;
+
+&lt;h2 id=&quot;using-html-files&quot;&gt;Using html files&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Create a new repository with any name, say jekyll-site&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/posts/using-jekyll-with-github-pages-part-1/create_repo.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Add a new file named, &lt;code class=&quot;highlighter-rouge&quot;&gt;index.html&lt;/code&gt; to the repository.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-html highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;nt&quot;&gt;&amp;lt;html&amp;gt;&lt;/span&gt;
+hello world from jekyll
+&lt;span class=&quot;nt&quot;&gt;&amp;lt;/html&amp;gt;&lt;/span&gt;
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/posts/using-jekyll-with-github-pages-part-1/add_file.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Commit changes and push it to the repository.&lt;/li&gt;
+  &lt;li&gt;Go to repository settings, and scroll down, you will see a Github Pages section, in that in source, dropdown and select branch as master, and then press save. Now wait for some time, you will see something like &lt;code class=&quot;highlighter-rouge&quot;&gt;Your site is published at &amp;lt;link to your site&amp;gt;&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/posts/using-jekyll-with-github-pages-part-1/go_to_github_pages.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/posts/using-jekyll-with-github-pages-part-1/published.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Press the link, and see the expected output as follows.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/posts/using-jekyll-with-github-pages-part-1/site.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;conclusion&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Remember one thing, if there are multiple .html files, index.html file is the one which is shown as the first page.&lt;/li&gt;
+  &lt;li&gt;So, this is how you use github pages to host your own html pages, but again we are using html and css to build a site, which actually hasn’t solved our problem, So, now we show how to do the same using markdown files.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;h2 id=&quot;using-markdown-files&quot;&gt;Using markdown files&lt;/h2&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Rename index.html to index.md&lt;/li&gt;
+  &lt;li&gt;Edit index.md and add the following to it&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;div class=&quot;language-markdown highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;gh&quot;&gt;# Helloworld&lt;/span&gt;
+&lt;span class=&quot;gu&quot;&gt;## Hello world using jekyll&lt;/span&gt;
+
+&lt;span class=&quot;sb&quot;&gt;`this is code fencing`&lt;/span&gt;
+
+&lt;span class=&quot;ge&quot;&gt;*Text in Italic*&lt;/span&gt;
+
+&lt;span class=&quot;gs&quot;&gt;**Text in Bold**&lt;/span&gt;
+
+Normal Text
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Now commit the changes and push it to repository.&lt;/li&gt;
+  &lt;li&gt;Go out and check your mobile for a minute, as it takes few minutes to reflect changes.&lt;/li&gt;
+  &lt;li&gt;Now open the site and see the expected output as follows.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/posts/using-jekyll-with-github-pages-part-1/site_with_markdown.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;h1 id=&quot;conclusion-1&quot;&gt;Conclusion&lt;/h1&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Site will be rendered into html files using jekyll, even if our file is in markdown.&lt;/li&gt;
+  &lt;li&gt;So, Jekyll translates the markdown file into html files, thus reducing our work, and since markdown is very easy to use and maintain, and doesn’t have wierd tags like html, it is very human readable and maintainable.&lt;/li&gt;
+  &lt;li&gt;Now, say you want to add such a page to some project you did, so you can’t add these .md files in your github pages, there is a functionality to overcome this, we can store all our github pages files in a sub folder called &lt;code class=&quot;highlighter-rouge&quot;&gt;/docs&lt;/code&gt;, and this will be rendered as earlier, to do this, go to repository settings, and scroll down, you will see a Github Pages section, in that in source, dropdown and select file as /docs, and then press save.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/posts/using-jekyll-with-github-pages-part-1/settings_select_docs_as_root_folder.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Try this yourself, by creating a docs folder and moving the &lt;code class=&quot;highlighter-rouge&quot;&gt;index.md&lt;/code&gt; to /docs, then commit and push the changes.&lt;/li&gt;
+  &lt;li&gt;You can also try to theme your page, click on &lt;code class=&quot;highlighter-rouge&quot;&gt;choose a theme&lt;/code&gt; below source section, and select the theme of your choice, wait for sometime, and check the website again. For example here, I have used the &lt;code class=&quot;highlighter-rouge&quot;&gt;slate-theme&lt;/code&gt;.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;img src=&quot;/assets/posts/using-jekyll-with-github-pages-part-1/page_with_theme.png&quot; alt=&quot;&quot; /&gt;&lt;/p&gt;</content><author><name>sra-vjti</name></author><category term="jekyll" /><summary type="html">– Vedant Paranjape</summary></entry><entry><title type="html">Rotating Image By Any Angle (Shear Transformation) Using Only NumPy</title><link href="blog.sravjti.in/2020/09/09/sheer-transformation.html" rel="alternate" type="text/html" title="Rotating Image By Any Angle (Shear Transformation) Using Only NumPy" /><published>2020-09-09T00:00:00+00:00</published><updated>2020-09-09T00:00:00+00:00</updated><id>blog.sravjti.in/2020/09/09/sheer-transformation</id><content type="html" xml:base="blog.sravjti.in/2020/09/09/sheer-transformation.html">&lt;p&gt;– &lt;a href=&quot;https://github.com/gautam-dev-maker&quot;&gt;Gautam Agrawal&lt;/a&gt;&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt;&lt;img width=&quot;768&quot; height=&quot;350&quot; src=&quot;/assets/posts/shear-transformation/image_1.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;These days, we are spoiled with high end libraries. When It comes to Image Processing and advanced libraries such as OpenCV Rotating Image may sound like a very easy task using inbuilt functions.I am not telling you to code everything from scratch, However, an understanding about how things work will make you a better programmer. So let’s get started.&lt;/p&gt;
+
+&lt;h2 id=&quot;bitmaps&quot;&gt;Bitmaps&lt;/h2&gt;
+
+&lt;p&gt;A typical computer image these days uses 24 bits to represent the color of each pixel. Eight bits are used to store the intensity of the &lt;strong&gt;red&lt;/strong&gt; part of a pixel (&lt;strong&gt;00000000&lt;/strong&gt; through &lt;strong&gt;11111111&lt;/strong&gt;), giving 256 distinct values. Eight bits are used to store the &lt;strong&gt;green&lt;/strong&gt; component, and eight bits are used to store the &lt;strong&gt;blue&lt;/strong&gt; component.&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;img width=&quot;600&quot; height=&quot;250&quot; src=&quot;/assets/posts/shear-transformation/image_2.png&quot; /&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;Each pixel has a coordinate pair (x,y) describing its position on two orthogonal axes from defined origin O. It is around this origin we are going to rotate this image.What we need to do is take the RGB values at every (x,y) location, rotate it as needed, and then write these values in the new location, considering (x,y) with respect to the origin we assumed.The new location is obtained by using the transformation matrix.&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;img width=&quot;600&quot; height=&quot;150&quot; src=&quot;/assets/posts/shear-transformation/image_3.png&quot; /&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;When image will be rotated ,the dimension of the frame containing it will change so to find the new dimensions we use this formula,&lt;/p&gt;
+
+&lt;div class=&quot;highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;new_width=|old_width×cosθ|+|old_height×sinθ|
+
+new_height=|old_height×cosθ|+ |old_row×sinθ|
+&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p&gt;now let’s code it&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;numpy&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;PIL&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Image&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;math&lt;/span&gt;
+
+
+&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;test.png&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;             &lt;span class=&quot;c1&quot;&gt;# Load the image
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Enter the angle :- &quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;              &lt;span class=&quot;c1&quot;&gt;# Ask the user to enter the angle of rotation
+&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Define the most occuring variables
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;radians&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;                            &lt;span class=&quot;c1&quot;&gt;#converting degrees to radians
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cosine&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;sine&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;                                &lt;span class=&quot;c1&quot;&gt;#define the height of the image
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;                                 &lt;span class=&quot;c1&quot;&gt;#define the width of the image
+&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Define the height and width of the new image that is to be formed
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_height&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cosine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;new_width&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cosine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# define another image variable of dimensions of new_height and new _column filled with zeros
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;zeros&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]))&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# Find the centre of the image about which we have to rotate the image
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;original_centre_height&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;    &lt;span class=&quot;c1&quot;&gt;#with respect to the original image
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;original_centre_width&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;    &lt;span class=&quot;c1&quot;&gt;#with respect to the original image
+&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Find the centre of the new image that will be obtained
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_centre_height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;#with respect to the new image
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_centre_width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;          &lt;span class=&quot;c1&quot;&gt;#with respect to the new image
+&lt;/span&gt;
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;#co-ordinates of pixel with respect to the centre of original image
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;original_centre_height&lt;/span&gt;                   
+        &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;original_centre_width&lt;/span&gt;                      
+
+        &lt;span class=&quot;c1&quot;&gt;#co-ordinate of pixel with respect to the rotated image
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sine&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cosine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cosine&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;s&quot;&gt;'''since image will be rotated the centre will change too, 
+        so to adust to that we will need to change new_x and new_y with
+        respect to the new centre'''&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_centre_height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_centre_width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;
+
+        &lt;span class=&quot;c1&quot;&gt;# adding if check to prevent any errors in the processing
+&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_width&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_height&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,:]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,:]&lt;/span&gt;                          &lt;span class=&quot;c1&quot;&gt;#writing the pixels to the new destination in the output image
+&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;pil_img&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fromarray&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;astype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;uint8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;    &lt;span class=&quot;c1&quot;&gt;# converting array to image
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pil_img&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;save&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;rotated_image.png&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;                                                 &lt;span class=&quot;c1&quot;&gt;# saving the image
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p align=&quot;center&quot;&gt;&lt;img width=&quot;768&quot; height=&quot;350&quot; src=&quot;/assets/posts/shear-transformation/image_4.png&quot; /&gt;&lt;/p&gt;
+&lt;p align=&quot;center&quot;&gt;Image obtained by matrix rotation&lt;/p&gt;
+
+&lt;h2 id=&quot;aliasing&quot;&gt;Aliasing&lt;/h2&gt;
+
+&lt;p&gt;So our resultant image is rotated by 15 degrees ,so it really worked,but what are those black dots?This is a problem called aliasing.Multiplying by sines and cosines on the integer coordinates of the source image gives real number results, and these have to be rounded back to integers again to be plotted. Sometimes this number rounding means the same destination location is addressed more than once, and sometimes certain pixels are missed completely. When the pixels are missed, the background shows through. This is why there are holes.The aliasing problem gets worse when angles are closesr to the diagonals. Here are a few examples of images at different rotations:&lt;/p&gt;
+
+&lt;p align=&quot;center&quot;&gt;&lt;img width=&quot;1080&quot; height=&quot;1080&quot; src=&quot;/assets/posts/shear-transformation/image_5.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;What can we do about this? There are a variety of solutions. One of them is to oversample the source image. We can pretend that each of the original source pixels is really a grid of &lt;em&gt;n x n&lt;/em&gt; smaller pixels (all of the same color), and calculate the destination coordinates of each of these subpixels and plot these&lt;/p&gt;
+
+&lt;p&gt;A more refined way is called &lt;em&gt;Area Mapping&lt;/em&gt;. For this, you invert the problem, and for each &lt;em&gt;destination&lt;/em&gt; pixel, you find which &lt;em&gt;four&lt;/em&gt; partial source pixels that it was created from. The color for the destination is calculated by the area-weighted average of the four source pixels (The source pixels that contribute more to the destination pixel have a greater influence on its color). This algorithm not only ensures that there are no gaps in the destination, but also appropriately averages the colors (ensuring both a smoother image and also keeping the average brightness of the rotated image constant).&lt;/p&gt;
+
+&lt;p&gt;However, there is a more elegant method, and this is the method that was used many years ago when computing power (and memory) were at a premium and every processor cycle worth its weight in gold. It is called the &lt;em&gt;three shear rotation&lt;/em&gt; method.&lt;/p&gt;
+
+&lt;h2 id=&quot;three-shears&quot;&gt;Three shears&lt;/h2&gt;
+
+&lt;p&gt;These method works by expanding 2D rotation matrix into three different matrices.&lt;/p&gt;
+
+&lt;table&gt;
+  &lt;tbody&gt;
+    &lt;tr&gt;
+      &lt;td&gt;&lt;img width=&quot;600&quot; height=&quot;150&quot; src=&quot;/assets/posts/shear-transformation/image_6.png&quot; /&gt;&lt;/td&gt;
+    &lt;/tr&gt;
+  &lt;/tbody&gt;
+&lt;/table&gt;
+
+&lt;p&gt;There are some interesting properties of this matrix:-&lt;/p&gt;
+
+&lt;ol&gt;
+  &lt;li&gt;The three matrices are all shear matrices&lt;/li&gt;
+  &lt;li&gt;The first and the last matrices are the same&lt;/li&gt;
+  &lt;li&gt;The determinant of each matrix is same (each stage is conformal and keeps the area the same).&lt;/li&gt;
+  &lt;li&gt;As the shear happens in just one plane at time, and each stage is conformal in area, no aliasing gaps appear in any stage.&lt;/li&gt;
+&lt;/ol&gt;
+
+&lt;p&gt;&lt;strong&gt;note&lt;/strong&gt;: Shear matrix shown above rotates in clockwise direction so we need to take angle in negative values to assess for that.&lt;/p&gt;
+
+&lt;p&gt;So let’s code the shear transformation&lt;/p&gt;
+
+&lt;div class=&quot;language-python highlighter-rouge&quot;&gt;&lt;div class=&quot;highlight&quot;&gt;&lt;pre class=&quot;highlight&quot;&gt;&lt;code&gt;&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;numpy&lt;/span&gt; &lt;span class=&quot;k&quot;&gt;as&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;from&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;PIL&lt;/span&gt; &lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;Image&lt;/span&gt;
+&lt;span class=&quot;kn&quot;&gt;import&lt;/span&gt; &lt;span class=&quot;nn&quot;&gt;math&lt;/span&gt;
+
+
+&lt;span class=&quot;k&quot;&gt;def&lt;/span&gt; &lt;span class=&quot;nf&quot;&gt;shear&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;s&quot;&gt;'''
+    |1  -tan(𝜃/2) |  |1        0|  |1  -tan(𝜃/2) | 
+    |0      1     |  |sin(𝜃)   1|  |0      1     |
+
+    '''&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;# shear 1
+&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;tangent&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tan&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tangent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+    &lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;
+
+    &lt;span class=&quot;c1&quot;&gt;#shear 2
+&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;      &lt;span class=&quot;c1&quot;&gt;#since there is no change in new_x according to the shear matrix
+&lt;/span&gt;
+    &lt;span class=&quot;c1&quot;&gt;#shear 3
+&lt;/span&gt;    &lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;tangent&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;              &lt;span class=&quot;c1&quot;&gt;#since there is no change in new_y according to the shear matrix
+&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;return&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;array&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;open&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;test.png&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;             &lt;span class=&quot;c1&quot;&gt;# Load the image
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=-&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;int&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;input&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;Enter the angle :- &quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;                &lt;span class=&quot;c1&quot;&gt;# Ask the user to enter the angle of rotation
+&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Define the most occuring variables
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;radians&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;                               &lt;span class=&quot;c1&quot;&gt;#converting degrees to radians
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cosine&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cos&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;sine&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;math&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sin&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;                                   &lt;span class=&quot;c1&quot;&gt;#define the height of the image
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;                                    &lt;span class=&quot;c1&quot;&gt;#define the width of the image
+&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Define the height and width of the new image that is to be formed
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_height&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cosine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;new_width&lt;/span&gt;  &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;cosine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;nb&quot;&gt;abs&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;*&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;sine&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;
+
+&lt;span class=&quot;c1&quot;&gt;# define another image variable of dimensions of new_height and new _column filled with zeros
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;zeros&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]))&lt;/span&gt;
+&lt;span class=&quot;n&quot;&gt;image_copy&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;copy&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;()&lt;/span&gt;
+
+
+&lt;span class=&quot;c1&quot;&gt;# Find the centre of the image about which we have to rotate the image
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;original_centre_height&lt;/span&gt;   &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;    &lt;span class=&quot;c1&quot;&gt;#with respect to the original image
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;original_centre_width&lt;/span&gt;    &lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;    &lt;span class=&quot;c1&quot;&gt;#with respect to the original image
+&lt;/span&gt;
+&lt;span class=&quot;c1&quot;&gt;# Find the centre of the new image that will be obtained
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_centre_height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;        &lt;span class=&quot;c1&quot;&gt;#with respect to the new image
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_centre_width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;round&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;+&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;/&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;2&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;          &lt;span class=&quot;c1&quot;&gt;#with respect to the new image
+&lt;/span&gt;
+
+&lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;i&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;height&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+    &lt;span class=&quot;k&quot;&gt;for&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;j&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;in&lt;/span&gt; &lt;span class=&quot;nb&quot;&gt;range&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;width&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;):&lt;/span&gt;
+        &lt;span class=&quot;c1&quot;&gt;#co-ordinates of pixel with respect to the centre of original image
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;original_centre_height&lt;/span&gt;                   
+        &lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shape&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;1&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;original_centre_width&lt;/span&gt; 
+
+        &lt;span class=&quot;c1&quot;&gt;#Applying shear Transformation                     
+&lt;/span&gt;        &lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;shear&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;angle&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;
+
+        &lt;span class=&quot;s&quot;&gt;'''since image will be rotated the centre will change too, 
+            so to adust to that we will need to change new_x and new_y with respect to the new centre'''&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_centre_height&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;
+        &lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_centre_width&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;-&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;
+
+
+        &lt;span class=&quot;c1&quot;&gt;# adding if check to prevent any errors in the processing
+&lt;/span&gt;        &lt;span class=&quot;k&quot;&gt;if&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_width&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;=&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt; &lt;span class=&quot;o&quot;&gt;&amp;lt;&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_height&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt; &lt;span class=&quot;ow&quot;&gt;and&lt;/span&gt; &lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;&amp;gt;=&lt;/span&gt;&lt;span class=&quot;mi&quot;&gt;0&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;:&lt;/span&gt;
+            &lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_y&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;new_x&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,:]&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;[&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;i&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;j&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;,:]&lt;/span&gt;                          &lt;span class=&quot;c1&quot;&gt;#writing the pixels to the new destination in the output image
+&lt;/span&gt;
+
+&lt;span class=&quot;n&quot;&gt;pil_img&lt;/span&gt;&lt;span class=&quot;o&quot;&gt;=&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;Image&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;fromarray&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;((&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;output&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;).&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;astype&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;np&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;uint8&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;))&lt;/span&gt;                       &lt;span class=&quot;c1&quot;&gt;# converting array to image
+&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;pil_img&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;.&lt;/span&gt;&lt;span class=&quot;n&quot;&gt;save&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;(&lt;/span&gt;&lt;span class=&quot;s&quot;&gt;&quot;rotated_image.png&quot;&lt;/span&gt;&lt;span class=&quot;p&quot;&gt;)&lt;/span&gt;                                                 &lt;span class=&quot;c1&quot;&gt;# saving the image]
+&lt;/span&gt;&lt;/code&gt;&lt;/pre&gt;&lt;/div&gt;&lt;/div&gt;
+
+&lt;p align=&quot;center&quot;&gt;&lt;img width=&quot;1400&quot; height=&quot;400&quot; src=&quot;/assets/posts/shear-transformation/image_7.png&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;In the first shear operation, raster columns are simply shifted up and down relative to each other. The shearing is symmetric around the center of the image. It’s analogous to shearing a deck of playing cards.&lt;/p&gt;
+
+&lt;p&gt;The second shear operation does a similar thing on the previous image, but this time does the shearing left to right.&lt;/p&gt;
+
+&lt;p&gt;The final shear is the same as the first operation; this time applied to the intermediate image.&lt;/p&gt;
+
+&lt;p&gt;No gaps! How elegant is that? We just rotated an image an arbitrary amount (smoothly) using three shear operations!&lt;/p&gt;
+
+&lt;p&gt;In times-past, when floating point and trig calculations were expensive, these properties were very important. Because only one plane was being modified at once, no additional memory was needed as the code could simple walk down the raster line making the changes it needed. Pretty cool.&lt;/p&gt;</content><author><name>sra-vjti</name></author><category term="image_processing" /><summary type="html">– Gautam Agrawal</summary></entry><entry><title type="html">Static and Dynamic Memory Allocation…?</title><link href="blog.sravjti.in/2018/07/31/static-dynamic-mem.html" rel="alternate" type="text/html" title="Static and Dynamic Memory Allocation…?" /><published>2018-07-31T00:00:00+00:00</published><updated>2018-07-31T00:00:00+00:00</updated><id>blog.sravjti.in/2018/07/31/static-dynamic-mem</id><content type="html" xml:base="blog.sravjti.in/2018/07/31/static-dynamic-mem.html">&lt;p&gt;– &lt;a href=&quot;https://github.com/rohitbhaskar&quot;&gt;Rohit Bhaskar&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;– &lt;a href=&quot;https://github.com/chirag16&quot;&gt;Chirag Trasikar&lt;/a&gt;&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Now, what does memory allocation mean?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;Memory allocation is the process by which any process or program is allocated a certain portion of virtual or physical memory space. (Virtual memory space is nothing but the temporary memory generated in the RAM by moving files from it). If you did not understand this, just know that every process needs to use memory, and giving the process the memory it needs is called memory allocation! That’s all!&lt;/p&gt;
+
+&lt;p&gt;Now to get to the main point of the post…&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;What does Static and Dynamic memory allocation mean then?&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;(I hope you read the &lt;a href=&quot;/2018/03/19/diff-Interpreting-compiling.html&quot;&gt;previous post&lt;/a&gt; of compilers and interpreters. The knowledge of what compiling means will be used here. Go back and read up if you need to)&lt;/p&gt;
+
+&lt;p&gt;Static memory allocation basically means that the memory is allocated during compilation itself. This means that the as soon as the compilation is over, certain space of memory will be fixed for its usage. But in Dynamic memory allocation, the space for the program is given ‘dynamically’, or set during run time. This means that the amount of memory that a program requires will not be set before hand but instead the memory will be allocated step by step depending on the program needs.&lt;/p&gt;
+
+&lt;p&gt;The advantage of Dynamic memory (obviously) is that it ends up using lesser portions of Memory that Static allocation. But it is slower in execution as memory has to be allocated at every step based on the requirements. Check the video below to understand it better.&lt;/p&gt;
+
+&lt;iframe width=&quot;560&quot; height=&quot;315&quot; src=&quot;https://www.youtube.com/embed/CSVRA4_xOkw&quot; title=&quot;YouTube video player&quot; frameborder=&quot;0&quot; allow=&quot;accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture&quot; allowfullscreen=&quot;&quot;&gt;&lt;/iframe&gt;
+
+&lt;p&gt;This post didn’t go into the details of the two types, but instead gave you an overview of what the terms mean and how you can go about learning more about it.&lt;/p&gt;
+
+&lt;p&gt;Hope you liked it! happy reading!&lt;/p&gt;</content><author><name>sra-vjti</name></author><category term="compilers" /><category term="interpreters" /><category term="memory" /><summary type="html">– Rohit Bhaskar</summary></entry><entry><title type="html">Difference Between Interpreting Codes And Compiling Them</title><link href="blog.sravjti.in/2018/03/19/diff-Interpreting-compiling.html" rel="alternate" type="text/html" title="Difference Between Interpreting Codes And Compiling Them" /><published>2018-03-19T00:00:00+00:00</published><updated>2018-03-19T00:00:00+00:00</updated><id>blog.sravjti.in/2018/03/19/diff-Interpreting-compiling</id><content type="html" xml:base="blog.sravjti.in/2018/03/19/diff-Interpreting-compiling.html">&lt;p&gt;– &lt;a href=&quot;https://github.com/rohitbhaskar&quot;&gt;Rohit Bhaskar&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;– &lt;a href=&quot;https://github.com/chirag16&quot;&gt;Chirag Trasikar&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;Well I know that there is always a confusion between interpreted and compilied based languages, and I wanted to make sure you know that no language is specifically a compiled language or an interpreted language. A language which is usually compiled can be interpreted and a language that is usually interpreted can be compiled.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Compiling and Interpreting are just 2 different methods to execute a program&lt;/strong&gt;&lt;/p&gt;
+
+&lt;p&gt;So, let’s get down to the main topic that is the difference between the two.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Compiling&lt;/strong&gt;: The job of a compiler is to take the source code (that is whatever you’ve written) and convert it to machine code (binary commands which the machine can understand). Now the codes that are compiled at the source or the workstation of the developer are converted to the binary code and shared as an executable to the users. Also since these executables are binary codes they are always ready to run and work super-fast on the supported platform.&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Interpreting&lt;/strong&gt;: In interpreting, you get rid of the process of compiling at the source. But in the end, you would always require something to convert the source code to machine code. For that we have something known as an interpreter. An interpreter converts a line of source code to machine code executes it and then moves on to the next line of code. This makes it easy to make dynamic changes in the code without requiring recompiling and distribute the complete code.&lt;/p&gt;
+
+&lt;p&gt;Here is a small cheat sheet to help you decide which language to use the next time you have an idea:&lt;/p&gt;
+
+&lt;p&gt;&lt;strong&gt;Compiled codes&lt;/strong&gt;:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Pros:
+    &lt;ol&gt;
+      &lt;li&gt;Code is ready to run;&lt;/li&gt;
+      &lt;li&gt;Super-fast and source code is protected as it is not shared.&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Cons:
+    &lt;ol&gt;
+      &lt;li&gt;Inflexibility in terms of cross platform deployment;&lt;/li&gt;
+      &lt;li&gt;Needs to be recompiled whenever changed.&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;General applications: Software’s, browsers, desktop applications.&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Generally used Languages: C, C++, objective C, Swift.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Interpreted codes&lt;/strong&gt;:&lt;/p&gt;
+
+&lt;ul&gt;
+  &lt;li&gt;Pros:
+    &lt;ol&gt;
+      &lt;li&gt;Cross platform flexibility,&lt;/li&gt;
+      &lt;li&gt;Dynamic changes to the code can be made.&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Cons:
+    &lt;ol&gt;
+      &lt;li&gt;Slower and source is unprotected as it is shared to the users.&lt;/li&gt;
+    &lt;/ol&gt;
+  &lt;/li&gt;
+  &lt;li&gt;
+    &lt;p&gt;General applications: Webpages&lt;/p&gt;
+  &lt;/li&gt;
+  &lt;li&gt;Generally used languages: PHP, JavaScript.&lt;/li&gt;
+&lt;/ul&gt;
+
+&lt;p&gt;&lt;strong&gt;Though this isn’t the end of it, there is a hybrid method which involves concepts of an intermediate language and JIT (Just In Time) compilers which are used by many modern languages like Java, Python etc. which will be explained in a future article ;)&lt;/strong&gt;&lt;/p&gt;</content><author><name>sra-vjti</name></author><category term="compilers" /><category term="interpreters" /><summary type="html">– Rohit Bhaskar</summary></entry><entry><title type="html">What Is Machine Language (Or Machine Code)?</title><link href="blog.sravjti.in/2017/07/31/static-dynamic-mem.html" rel="alternate" type="text/html" title="What Is Machine Language (Or Machine Code)?" /><published>2017-07-31T00:00:00+00:00</published><updated>2017-07-31T00:00:00+00:00</updated><id>blog.sravjti.in/2017/07/31/static-dynamic-mem</id><content type="html" xml:base="blog.sravjti.in/2017/07/31/static-dynamic-mem.html">&lt;p&gt;– &lt;a href=&quot;https://github.com/rohitbhaskar&quot;&gt;Rohit Bhaskar&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;– &lt;a href=&quot;https://github.com/chirag16&quot;&gt;Chirag Trasikar&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://engineeringprojectideas.files.wordpress.com/2015/06/datamining.jpg?w=810&quot; alt=&quot;binaries image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;A lot of computer nerds (Sorry! Engineers!!) know about something called machine language or machine code…maybe even a few electronics engineers…but for most it’s still just a jargon they have heard of, but never bothered googling 🙂&lt;/p&gt;
+
+&lt;p&gt;By definition, Machine code or machine language is a set of instructions executed directly by a computer’s central processing unit (CPU). These instructions can be anything like (warning! The next few lines are specifically for engineering students who have worked with 8085 or 8086 microprocessors) load, a jump, or an ALU operation on a unit of data in a CPU register or memory. Every program directly executed by a CPU is made up of a series of such instructions.
+Now! For normal people…machine language is the only language that is understood by your computer. Each and every language or instruction that is given to a processor is always passed on it terms of machine language.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://engineeringprojectideas.files.wordpress.com/2015/06/binaries.jpg?w=300&amp;amp;h=206&quot; alt=&quot;matrix like cool image&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;So you must be wondering what machine language consists of right? Well, they consist entire of numbers and mostly binary and is almost impossible for humans to use. It has been said that machine code is so unreadable that the United States Copyright Office cannot identify whether a particular encoded program is an original work of authorship. That’s why an assembly level language is used by programmers! (We will get to assembly language some other time :p)
+So what happens to all that huge codes that people write, that does everything from showing you the little things on your display to actually running your main processes? Each and every thing is converted to either machine language or assembly language for the processor to understand the instruction and execute it.&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://engineeringprojectideas.files.wordpress.com/2015/06/level-of-programming-language.png?w=300&amp;amp;h=236&quot; alt=&quot;pyramid&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;The next question that might arise is whether this language is used by all processors?? Well, the answer is no. Every processor or processor family has its own machine code instruction set. Instructions are patterns of bits that by physical design correspond to different commands to the machine. Thus, the instruction set is specific to a class of processors using (much) the same architecture.
+For more details you can refer &lt;a href=&quot;https://en.wikipedia.org/wiki/Machine_code&quot;&gt;Wikipedia&lt;/a&gt;&lt;/p&gt;</content><author><name>sra-vjti</name></author><category term="compilers" /><category term="assembly" /><summary type="html">– Rohit Bhaskar</summary></entry><entry><title type="html">What Is The Difference Between A Compiler And A Interpreter?</title><link href="blog.sravjti.in/2017/07/31/compiler-interpreter.html" rel="alternate" type="text/html" title="What Is The Difference Between A Compiler And A Interpreter?" /><published>2017-07-31T00:00:00+00:00</published><updated>2017-07-31T00:00:00+00:00</updated><id>blog.sravjti.in/2017/07/31/compiler-interpreter</id><content type="html" xml:base="blog.sravjti.in/2017/07/31/compiler-interpreter.html">&lt;p&gt;– &lt;a href=&quot;https://github.com/rohitbhaskar&quot;&gt;Rohit Bhaskar&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;– &lt;a href=&quot;https://github.com/chirag16&quot;&gt;Chirag Trasikar&lt;/a&gt;&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://engineeringprojectideas.files.wordpress.com/2017/07/c-vs-i.png?w=450&quot; alt=&quot;compiler vs interpreter&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;There are a lost of articles and posts on this topics already and ‘IF’ you are a computer science engineering student, there is a very good probability that you already know this. So feel free to skip this post. But for everyone else, its a really important thing to understand!…… No pressure 🙂&lt;/p&gt;
+
+&lt;p&gt;Before we understand what the difference between a compiler and an interpreter is, we 1st need to understand what each one of them is… and even before that what and where they used.&lt;/p&gt;
+
+&lt;p&gt;So what do you think happens to those huge codes that coders write?? Almost each code goes through “scrutiny” by the system before ‘execution’. (Execution of the code is nothing but doing whatever is written in the code). By scrutiny, i mean that the code is checked for errors, (Errors are unexpected conditions that are not part of the normal operation of the code) and also, the flow of the code is made clear to the processor.&lt;/p&gt;
+
+&lt;p&gt;Now this checking for errors is done in 2 ways….more like at 2 stages actually. The check can be done before the execution of the code or it can be done for each line of code. This is the main difference between a Compiler and an Interpreter. A Compiler checks the code completely before any thing is executed, whereas an interpreter check only 1 line at a time and executes it (more like a run-time check).&lt;/p&gt;
+
+&lt;p&gt;&lt;img src=&quot;https://2minutetech.files.wordpress.com/2015/11/difference-between-compiler-and-interpreter.jpg&quot; alt=&quot;Difference&quot; /&gt;&lt;/p&gt;
+
+&lt;p&gt;(A special note! Java has an interpreter and a compiler! Yes! The compiler for JAVA code creates something called as Java Bytecode. This JAVA Bytecode is passed to an in-time-compiler or interpreter! Awesome isn’t it?)&lt;/p&gt;
+
+&lt;p&gt;This just an overview to the difference between them. To understand it better, you will need to search and read a bit more. So try out this page while you are at it.&lt;/p&gt;
+
+&lt;p&gt;Hope you liked this post! Comment below if you need an particular topic or if there’s something you don’t fully understand! I would be happy to help.&lt;/p&gt;</content><author><name>sra-vjti</name></author><category term="compilers" /><category term="interpreters" /><summary type="html">– Rohit Bhaskar</summary></entry></feed>
