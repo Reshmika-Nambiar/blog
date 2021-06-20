@@ -29,7 +29,7 @@ The open slip differential is what you saw in the video above. But the disadvant
 Even a hand drill has a set of gears like an open differential.
 Refer the video below for understanding the types of differentials and why they are needed.
 
-[![How a Differential Works and Types of Differentials](https://img.youtube.com/vi/gIGvhvOhLHU/0.jpg)](https://www.youtube.com/watch?v=gIGvhvOhLHU)
+[![How a Differential Works and Types of Differentials](https://yt-embed.herokuapp.com/embed?v=gIGvhvOhLHU)](https://www.youtube.com/watch?v=gIGvhvOhLHU)
 
 > *Hope it was easy to understand!!*
 
