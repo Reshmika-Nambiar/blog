@@ -13,7 +13,7 @@ description: Understand the working of a car differential.
 
 Today’s is going to be particularly helpful for mechanical engineering students…. But useful to everyone in general! So don’t worry. The differential is a device that splits the engine torque two ways, allowing each output to spin at a different speed. What this means is that the 2 wheels of the car can now rotate at different speeds. It’s at this point that most will start wondering….”Why do the 2 wheels of the same car have to rotate at different speeds??” The reason this is needed is in turns. Whenever the car turns, the wheels of the car don’t rotate the same amount. i.e th inner tire and the outer tire have to rotate differently so that the car can turn correctly. The following video explains a differential system perfectly!!
 
-[![How Differential Gear works (BEST Tutorial)](https://img.youtube.com/vi/K4JhruinbWc/0.jpg)](https://www.youtube.com/watch?v=K4JhruinbWc)
+<iframe width="560" height="315" src="https://www.youtube.com/embed/K4JhruinbWc" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 Once you have seen that, i am guessing that probably understand why we need a differential system and also how it works. Now we can move on to different differential systems. The different types of differentials are
 
@@ -29,7 +29,7 @@ The open slip differential is what you saw in the video above. But the disadvant
 Even a hand drill has a set of gears like an open differential.
 Refer the video below for understanding the types of differentials and why they are needed.
 
-[![How a Differential Works and Types of Differentials](https://yt-embed.herokuapp.com/embed?v=gIGvhvOhLHU)](https://www.youtube.com/watch?v=gIGvhvOhLHU)
+<iframe width="560" height="315" src="https://www.youtube.com/embed/gIGvhvOhLHU" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
 
 > *Hope it was easy to understand!!*
 
