@@ -24,7 +24,7 @@ Once you have seen that, i am guessing that probably understand why we need a di
 
 The open slip differential is what you saw in the video above. But the disadvantages that come with it are when one wheel has a different traction that the other i.e if one of the tires is slipping. At this time the torque is transmitted to the path of least resistance i.e the tire with lesser traction. This is why a limited slip differential was invented. In a limited slip differential some part of the transmitted torque is always given to the other tire. In a locking differential the wheel with the lesser traction is stopped with an electronically activated brake so that the torque can be then transmitted back to the other tire.
 
-<img>
+![](/assets/posts/how-does-a-car-differential-work/hand-drill.jpg)
 
 Even a hand drill has a set of gears like an open differential.
 Refer the video below for understanding the types of differentials and why they are needed.
